@@ -74,8 +74,6 @@ def findSolution() :
         findSolution()
         cellData = history.pop() # cellData has (i, j, num) form. (position data i, j) & (a number filled in the cell)
         grid[cellData[0], cellData[1]] = 0
-
-    
         
 
 
@@ -83,4 +81,9 @@ def findSolution() :
 
 def main() :
     grid = loadData()
-    
+    findSolution()
+    print(solution)
+
+
+
+main()
