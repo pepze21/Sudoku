@@ -1,4 +1,4 @@
-# solving Sudoku puzzle ver.01-210802
+# solving Sudoku puzzle ver.02-210803
 # assume there exists only one solution
 
 import copy
@@ -62,18 +62,20 @@ def findSolution() :
     if isComplete():
         solution = copy.deepcopy(grid)
         return # now, global variable 'grid' is the unique solution
-
+    
     i, j = findNext() # find next (first) empty position
     
-    if possibleNumbers(i, j, grid) :
-        for num in possibleNumbers(i, j, grid) :
-            grid[i][j] = num
-            history.append((i, j, num))
-            findSolution()
-            cellData = history.pop() # cellData has (i, j, num) form. (position data i, j) & (a number filled in the cell)
-            grid[cellData[0], cellData[1]] = 0
-            return
-    elif not possibleNumbers(i, j, grid):
+    if not possibleNumbers(i, j, grid):
+        return
+
+    for num in possibleNumbers(i, j, grid) :
+        grid[i][j] = num
+        history.append((i, j, num))
+        findSolution()
+        cellData = history.pop() # cellData has (i, j, num) form. (position data i, j) & (a number filled in the cell)
+        grid[cellData[0], cellData[1]] = 0
+
+    
         
 
 
