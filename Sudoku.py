@@ -1,5 +1,5 @@
-# solving Sudoku puzzle ver.04-210805
-# assume there exists only one solution
+# solving Sudoku puzzle ver.06-210806
+# assume there exists only one solution ???
 
 import copy
 
@@ -46,10 +46,10 @@ def possibleNumbers(row, column, grid) : # grid가 실수로 변경되지 않길
     for i in range(SIZE_OF_SUBGRIDS) :     # search numbers in the same subgrid
         for j in range(SIZE_OF_SUBGRIDS) :
             num_subgrid = grid[(row//SIZE_OF_SUBGRIDS)*SIZE_OF_SUBGRIDS + i]\
-                              [(row//SIZE_OF_SUBGRIDS)*SIZE_OF_SUBGRIDS + j]
+                              [(column//SIZE_OF_SUBGRIDS)*SIZE_OF_SUBGRIDS + j]
             if num_subgrid in pos_nums : # (row//3)*3 == first index of the subgrid
                 pos_nums.remove(num_subgrid)
-    print("pos_nums :", pos_nums)
+    #print("pos_nums :", pos_nums)
     return pos_nums
 
 def isComplete(grid) : # grid가 실수로 변경되지 않길 원해서 global로 선언 x
@@ -64,34 +64,70 @@ def isComplete(grid) : # grid가 실수로 변경되지 않길 원해서 global�
 def findSolution() : # we'll find only one solution.(b/o uniqueness of solutions)
     global grid, history, solutions
 
-    while True :
-        if isComplete(grid):
-            solutions.append(copy.deepcopy(grid))
-            print("I got a solution")
-            break # now, global variable 'grid' is the unique solution
-    
-        i, j = findNext(grid) # find next (first) empty position
-        pos_num = copy.deepcopy(possibleNumbers(i, j, grid))
-        if not pos_num :
-            break 
+    if isComplete(grid):
+        solutions.append(copy.deepcopy(grid))
+        print("I got a solution")
+        return # now, global variable 'grid' is the unique solution
 
-        for num in pos_num :
-            grid[i][j] = num
-            history.append((i, j, num))
-            print(grid)
-            findSolution()
-            cellData = history.pop() # cellData has (i, j, num) form. (position data i, j) & (a number filled in the cell)
-            grid[cellData[0]][cellData[1]] = 0
+    i, j = findNext(grid) # find next (first) empty position
+   
+    for num in possibleNumbers(i, j, grid) :
+        grid[i][j] = num
+        history.append((i, j, num))
+        findSolution()
+        cellData = history.pop() # cellData has (i, j, num) form. (position data i, j) & (a number filled in the cell)
+        grid[cellData[0]][cellData[1]] = 0
         
+def isReallyComplete(solution) :
+    sum = 0
+    for i in range(SIZE) : #row test
+        sum = 0
+        for j in range(SIZE) :
+            sum += solution[i][j]
+        if sum != 45 :
+            print("%dth row is not complete" %i)
+            return False
 
+    for j in range(SIZE) : #column test
+        sum = 0
+        for i in range(SIZE) :
+            sum += solution[i][j]
+        if sum != 45 :
+            print("%dth column is not complete" %j)
+            return False
+
+    for k in range(SIZE_OF_SUBGRIDS) : #subgrid test. about (k, l)th subgirds
+        for l in range(SIZE_OF_SUBGRIDS) :
+            sum = 0
+            for i in range(SIZE_OF_SUBGRIDS) :
+                for j in range(SIZE_OF_SUBGRIDS) :
+                    sum += solution[SIZE_OF_SUBGRIDS*k + i][SIZE_OF_SUBGRIDS*l + j]
+            if sum != 45 :
+                print("(%d, %d)th subgrid is not complete" %(i, j))
+
+    sum = 0
+    for i in range(SIZE) :
+        for j in range(SIZE) :
+            sum += solution[i][j]
+    if sum != 405 :
+        return False
     
+    print("this solution has passed 'row', 'column', 'subgrid', 'total' tests.")
+    print("thus it is really complete")
+    return True
+
+
+
+
 def main() :
-    global grid, solution
+    global grid, solutions
     grid = loadData()
     findSolution()
     for solution in solutions :
-        print("solution :", solution)
-
+        print("solution :")
+        for i in range(len(solution)) :
+            print(solution[i])
+        isReallyComplete(solution)
 
 ## main
 
