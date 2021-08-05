@@ -1,4 +1,4 @@
-# solving Sudoku puzzle ver.03-210804
+# solving Sudoku puzzle ver.04-210805
 # assume there exists only one solution
 
 import copy
@@ -8,6 +8,7 @@ SIZE = 9
 SIZE_OF_SUBGRIDS = 3 # == SIZE**(1/2)
 grid = [] # [[None for _ in range(SIZE)] for _ in range(SIZE)] 을 선언?
 history = []
+solutions = []
 
 ## classes & functions
 def loadData() : # 0 means empty
@@ -48,40 +49,48 @@ def possibleNumbers(row, column, grid) : # grid가 실수로 변경되지 않길
                               [(row//SIZE_OF_SUBGRIDS)*SIZE_OF_SUBGRIDS + j]
             if num_subgrid in pos_nums : # (row//3)*3 == first index of the subgrid
                 pos_nums.remove(num_subgrid)
+    print("pos_nums :", pos_nums)
     return pos_nums
 
 def isComplete(grid) : # grid가 실수로 변경되지 않길 원해서 global로 선언 x
     global SIZE
     for i in range(SIZE) :
         for j in range(SIZE) :
-            return not (grid[i][j] == 0)
+            if grid[i][j] == 0 :
+                return False
     return True
 
 
-def findSolution() :
-    global grid, history, solution
-        
-    if isComplete(grid):
-        solution = copy.deepcopy(grid)
-        return # now, global variable 'grid' is the unique solution
-    
-    i, j = findNext(grid) # find next (first) empty position
-    
-    if not possibleNumbers(i, j, grid):
-        return
+def findSolution() : # we'll find only one solution.(b/o uniqueness of solutions)
+    global grid, history, solutions
 
-    for num in possibleNumbers(i, j, grid) :
-        grid[i][j] = num
-        history.append((i, j, num))
-        findSolution()
-        cellData = history.pop() # cellData has (i, j, num) form. (position data i, j) & (a number filled in the cell)
-        grid[cellData[0]][cellData[1]] = 0
+    while True :
+        if isComplete(grid):
+            solutions.append(copy.deepcopy(grid))
+            print("I got a solution")
+            break # now, global variable 'grid' is the unique solution
+    
+        i, j = findNext(grid) # find next (first) empty position
+        pos_num = copy.deepcopy(possibleNumbers(i, j, grid))
+        if not pos_num :
+            break 
+
+        for num in pos_num :
+            grid[i][j] = num
+            history.append((i, j, num))
+            print(grid)
+            findSolution()
+            cellData = history.pop() # cellData has (i, j, num) form. (position data i, j) & (a number filled in the cell)
+            grid[cellData[0]][cellData[1]] = 0
         
+
+    
 def main() :
     global grid, solution
     grid = loadData()
     findSolution()
-    print(solution)
+    for solution in solutions :
+        print("solution :", solution)
 
 
 ## main
