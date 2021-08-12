@@ -1,5 +1,5 @@
-# solving Sudoku puzzle ver.08-210809, 코드를 깔끔하게 정리
-# assume there exists only one solution  - but there could be many solutions in the testgrid !!!!
+# solving Sudoku puzzle ver.09-210812, complete version
+# Now we can find whole solutions in the testgrid !!
 
 import copy
 
@@ -37,13 +37,13 @@ def possibleNumbers(row, column, grid):
     # search numbers of the same row, column, and subgrid
     global SIZE, SIZE_OF_SUBGRIDS
     pos_nums = [num for num in range(1, SIZE + 1)]
-    for j in range(SIZE): # search in the same row
+    for j in range(SIZE):
         if grid[row][j] in pos_nums:
             pos_nums.remove(grid[row][j])
-    for i in range(SIZE): # search in the same column
+    for i in range(SIZE):
         if grid[i][column] in pos_nums:
             pos_nums.remove(grid[i][column])
-    for i in range(SIZE_OF_SUBGRIDS): # search in the same subgrid
+    for i in range(SIZE_OF_SUBGRIDS):
         for j in range(SIZE_OF_SUBGRIDS):
             num_subgrid = \
             grid[(row//SIZE_OF_SUBGRIDS)*SIZE_OF_SUBGRIDS + i]\
@@ -60,8 +60,7 @@ def isComplete(grid):
                 return False
     return True
 
-
-def findSolution(): # we'll find only one solution.
+def findSolution(): # Find whole solutions whether unique or not
     global grid, history, solutions
 
     if isComplete(grid):
@@ -78,48 +77,6 @@ def findSolution(): # we'll find only one solution.
         cellData = history.pop()
         grid[cellData[0]][cellData[1]] = 0
         
-def isReallyComplete(solution):
-    sum = 0
-
-    for i in range(SIZE): # row test
-        sum = 0
-        for j in range(SIZE):
-            sum += solution[i][j]
-        if sum != 45:
-            print("%dth row is not complete" %i)
-            return False
-
-    for j in range(SIZE): # column test
-        sum = 0
-        for i in range(SIZE):
-            sum += solution[i][j]
-        if sum != 45:
-            print("%dth column is not complete" %j)
-            return False
-
-    for k in range(SIZE_OF_SUBGRIDS): # subgrid test.
-        for l in range(SIZE_OF_SUBGRIDS):
-            sum = 0
-            for i in range(SIZE_OF_SUBGRIDS):
-                for j in range(SIZE_OF_SUBGRIDS):
-                    sum += solution[SIZE_OF_SUBGRIDS*k + i]\
-                                   [SIZE_OF_SUBGRIDS*l + j]
-            if sum != 45 :
-                print("(%d, %d)th subgrid is not complete" %(i, j))
-                return False
-
-    sum = 0 # total sum test
-    for i in range(SIZE):
-        for j in range(SIZE):
-            sum += solution[i][j]
-    if sum != 405:
-        print("total sum of the grid is not 405")
-        return False
-    
-    print("this solution has passed 'row', 'column', 'subgrid', 'total sum' tests.")
-    print("thus it is really complete")
-    return True
-
 def main():
     global grid, solutions
     grid = loadData()
@@ -128,9 +85,9 @@ def main():
         print("solution :")
         for i in range(len(solution)):
             print(solution[i])
-        isReallyComplete(solution)
+    if len(solution) != 1:
+        print("It's wrong problem because of uniqueness of Sudoku solution")
 
 ## main
-
 if __name__ == "__main__" :
     main()
